@@ -38,6 +38,7 @@ var (
 	statsdListenUDP     = flag.String("statsd.listen-udp", ":9125", "The UDP address on which to receive statsd metric lines. \"\" disables it.")
 	statsdListenTCP     = flag.String("statsd.listen-tcp", ":9125", "The TCP address on which to receive statsd metric lines. \"\" disables it.")
 	mappingConfig       = flag.String("statsd.mapping-config", "", "Metric mapping configuration file name.")
+	logLevel            = flag.String("log.level", "info", "Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal]")
 	readBuffer          = flag.Int("statsd.read-buffer", 0, "Size (in bytes) of the operating system's transmit read buffer associated with the UDP connection. Please make sure the kernel parameters net.core.rmem_max is set to a value greater than the value specified.")
 	showVersion         = flag.Bool("version", false, "Print version information.")
 )
@@ -131,6 +132,10 @@ func watchConfig(fileName string, mapper *metricMapper) {
 
 func main() {
 	flag.Parse()
+
+	if err := log.Base().SetLevel(*logLevel); err != nil {
+		log.Fatal(err)
+	}
 
 	if *showVersion {
 		fmt.Fprintln(os.Stdout, version.Print("statsd_exporter"))
